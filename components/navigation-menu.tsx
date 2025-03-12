@@ -2,16 +2,12 @@
 
 import type React from "react"
 
-import { useState } from "react"
 import Link from "next/link"
 import {
   BarChart3,
   BookOpen,
-  ChevronDown,
-  ChevronRight,
   ClipboardList,
   Database,
-  FileText,
   FolderOpen,
   Grid,
   HelpCircle,
@@ -31,171 +27,171 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 interface NavItemProps {
+  id: string
   title: string
   icon?: React.ReactNode
   href?: string
-  children?: React.ReactNode
   isActive?: boolean
-  isOpen?: boolean
-  onToggle?: () => void
+  onClick?: () => void
 }
 
-const NavItem = ({ title, icon, href, children, isActive = false, isOpen = false, onToggle }: NavItemProps) => {
-  const hasChildren = Boolean(children)
-
-  if (hasChildren) {
-    return (
-      <div className="space-y-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn("w-full justify-between font-medium", isActive && "bg-accent text-accent-foreground")}
-          onClick={onToggle}
-        >
-          <span className="flex items-center gap-2">
-            {icon}
-            {title}
-          </span>
-          {isOpen ? (
-            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-          ) : (
-            <ChevronRight className="h-4 w-4 shrink-0 opacity-50" />
-          )}
-        </Button>
-        {isOpen && <div className="pl-6 pt-1">{children}</div>}
-      </div>
-    )
-  }
-
+const NavItem = ({ id, title, icon, href, isActive = false, onClick }: NavItemProps) => {
   return (
     <Button
-      asChild
       variant="ghost"
       size="sm"
       className={cn("w-full justify-start font-medium", isActive && "bg-accent text-accent-foreground")}
+      onClick={onClick}
     >
-      <Link href={href || "#"}>
-        <span className="flex items-center gap-2">
-          {icon}
-          {title}
-        </span>
-      </Link>
+      <span className="flex items-center gap-2">
+        {icon}
+        {title}
+      </span>
     </Button>
   )
 }
 
-export default function NavigationMenu() {
-  const [openItems, setOpenItems] = useState<Record<string, boolean>>({
-    "resource-hub": false,
-    "application-portfolio": false,
-    "data-management": false,
-    rgi: false,
-    configuration: false,
-    reporting: false,
-    admin: false,
-  })
+// Define the menu structure
+const menuItems = [
+  {
+    id: "resource-hub",
+    title: "Resource Hub",
+    icon: <BookOpen className="h-4 w-4" />,
+    subItems: [
+      { id: "widget-category", title: "Widget Category", icon: <Grid className="h-4 w-4" /> },
+      { id: "widget-cards", title: "Widget Cards", icon: <Grid className="h-4 w-4" /> },
+    ],
+  },
+  {
+    id: "application-portfolio",
+    title: "Application Portfolio",
+    icon: <FolderOpen className="h-4 w-4" />,
+    subItems: [
+      { id: "import-ait", title: "Import AIT", icon: <Upload className="h-4 w-4" /> },
+      { id: "resource-hierarchies", title: "Resource Hierarchies", icon: <List className="h-4 w-4" /> },
+      {
+        id: "data-management",
+        title: "Data Management",
+        icon: <Database className="h-4 w-4" />,
+        subItems: [
+          { id: "edit-organisations", title: "Edit Organisations", icon: <Users className="h-4 w-4" /> },
+          { id: "app-functions", title: "App Functions", icon: <Settings className="h-4 w-4" /> },
+          { id: "lob", title: "LOB", icon: <List className="h-4 w-4" /> },
+          { id: "portfolio", title: "Portfolio", icon: <FolderOpen className="h-4 w-4" /> },
+        ],
+      },
+    ],
+  },
+  {
+    id: "capacity-exception-tracker",
+    title: "Capacity Exception Tracker",
+    icon: <ClipboardList className="h-4 w-4" />,
+  },
+  {
+    id: "resource-list",
+    title: "Resource List",
+    icon: <List className="h-4 w-4" />,
+  },
+  {
+    id: "scorecard",
+    title: "Scorecard",
+    icon: <BarChart3 className="h-4 w-4" />,
+  },
+  {
+    id: "rgi",
+    title: "RGI",
+    icon: <Star className="h-4 w-4" />,
+    subItems: [
+      {
+        id: "configuration",
+        title: "Configuration",
+        icon: <Settings className="h-4 w-4" />,
+        subItems: [
+          { id: "type", title: "Type" },
+          { id: "subtype", title: "SubType" },
+          { id: "status", title: "Status" },
+          { id: "stage", title: "Stage" },
+          { id: "dispositions", title: "Dispositions" },
+          { id: "intake-status", title: "Intake Status" },
+          { id: "intake-sub-status", title: "Intake Sub Status" },
+          { id: "note-type", title: "Note Type" },
+          { id: "deliverable-status", title: "Deliverable Status" },
+          { id: "relationship-type", title: "Relationship Type" },
+          { id: "category", title: "Category" },
+          { id: "slt", title: "SLT" },
+        ],
+      },
+      {
+        id: "reporting",
+        title: "Reporting",
+        icon: <PieChart className="h-4 w-4" />,
+        subItems: [
+          { id: "rgi-report", title: "RGI" },
+          { id: "rgi-bi", title: "RGI Business Intelligence (BI)" },
+          { id: "rise", title: "RISE" },
+          { id: "rise-app", title: "RISE App" },
+          { id: "rise-bi", title: "RISE BI" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "submission-tools",
+    title: "Submission Tools",
+    icon: <Upload className="h-4 w-4" />,
+  },
+  {
+    id: "reporting-analytics-hub",
+    title: "Reporting & Analytics Hub",
+    icon: <BarChart3 className="h-4 w-4" />,
+  },
+  {
+    id: "data-import",
+    title: "Data Import",
+    icon: <Database className="h-4 w-4" />,
+  },
+  {
+    id: "aas",
+    title: "AAS",
+    icon: <Shield className="h-4 w-4" />,
+  },
+  {
+    id: "admin",
+    title: "Admin",
+    icon: <Settings className="h-4 w-4" />,
+    subItems: [
+      { id: "app-notification", title: "App Notification" },
+      { id: "health-checks", title: "Health Checks" },
+      { id: "offline-page", title: "Offline Page" },
+    ],
+  },
+  {
+    id: "help",
+    title: "Help",
+    icon: <HelpCircle className="h-4 w-4" />,
+  },
+]
 
-  const toggleItem = (key: string) => {
-    setOpenItems((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }))
-  }
-
+export default function NavigationMenu({
+  activeItem,
+  onItemClick,
+}: {
+  activeItem: string | null
+  onItemClick: (itemId: string) => void
+}) {
   const renderNavContent = () => (
     <ScrollArea className="h-[calc(100vh-4rem)] pb-10">
       <div className="space-y-2 px-2 py-4">
-        <NavItem
-          title="Resource Hub"
-          icon={<BookOpen className="h-4 w-4" />}
-          isOpen={openItems["resource-hub"]}
-          onToggle={() => toggleItem("resource-hub")}
-        >
-          <NavItem title="Widget Category" icon={<Grid className="h-4 w-4" />} />
-          <NavItem title="Widget Cards" icon={<Grid className="h-4 w-4" />} />
-        </NavItem>
-
-        <NavItem
-          title="Application Portfolio"
-          icon={<FolderOpen className="h-4 w-4" />}
-          isOpen={openItems["application-portfolio"]}
-          onToggle={() => toggleItem("application-portfolio")}
-        >
-          <NavItem title="Import AIT" icon={<Upload className="h-4 w-4" />} />
-          <NavItem title="Resource Hierarchies" icon={<List className="h-4 w-4" />} />
+        {menuItems.map((item) => (
           <NavItem
-            title="Data Management"
-            icon={<Database className="h-4 w-4" />}
-            isOpen={openItems["data-management"]}
-            onToggle={() => toggleItem("data-management")}
-          >
-            <NavItem title="Edit Organisations" icon={<Users className="h-4 w-4" />} />
-            <NavItem title="App Functions" icon={<Settings className="h-4 w-4" />} />
-            <NavItem title="LOB" icon={<FileText className="h-4 w-4" />} />
-            <NavItem title="Portfolio" icon={<FolderOpen className="h-4 w-4" />} />
-          </NavItem>
-        </NavItem>
-
-        <NavItem title="Capacity Exception Tracker" icon={<ClipboardList className="h-4 w-4" />} />
-        <NavItem title="Resource List" icon={<List className="h-4 w-4" />} />
-        <NavItem title="Scorecard" icon={<BarChart3 className="h-4 w-4" />} />
-
-        <NavItem
-          title="RGI"
-          icon={<Star className="h-4 w-4" />}
-          isOpen={openItems["rgi"]}
-          onToggle={() => toggleItem("rgi")}
-        >
-          <NavItem
-            title="Configuration"
-            icon={<Settings className="h-4 w-4" />}
-            isOpen={openItems["configuration"]}
-            onToggle={() => toggleItem("configuration")}
-          >
-            <NavItem title="Type" />
-            <NavItem title="SubType" />
-            <NavItem title="Status" />
-            <NavItem title="Stage" />
-            <NavItem title="Dispositions" />
-            <NavItem title="Intake Status" />
-            <NavItem title="Intake Sub Status" />
-            <NavItem title="Note Type" />
-            <NavItem title="Deliverable Status" />
-            <NavItem title="Relationship Type" />
-            <NavItem title="Category" />
-            <NavItem title="SLT" />
-          </NavItem>
-          <NavItem
-            title="Reporting"
-            icon={<PieChart className="h-4 w-4" />}
-            isOpen={openItems["reporting"]}
-            onToggle={() => toggleItem("reporting")}
-          >
-            <NavItem title="RGI" />
-            <NavItem title="RGI Business Intelligence (BI)" />
-            <NavItem title="RISE" />
-            <NavItem title="RISE App" />
-            <NavItem title="RISE BI" />
-          </NavItem>
-        </NavItem>
-
-        <NavItem title="Submission Tools" icon={<Upload className="h-4 w-4" />} />
-        <NavItem title="Reporting & Analytics Hub" icon={<BarChart3 className="h-4 w-4" />} />
-        <NavItem title="Data Import" icon={<Database className="h-4 w-4" />} />
-        <NavItem title="AAS" icon={<Shield className="h-4 w-4" />} />
-
-        <NavItem
-          title="Admin"
-          icon={<Settings className="h-4 w-4" />}
-          isOpen={openItems["admin"]}
-          onToggle={() => toggleItem("admin")}
-        >
-          <NavItem title="App Notification" />
-          <NavItem title="Health Checks" />
-          <NavItem title="Offline Page" />
-        </NavItem>
-
-        <NavItem title="Help" icon={<HelpCircle className="h-4 w-4" />} />
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            icon={item.icon}
+            isActive={activeItem === item.id}
+            onClick={() => onItemClick(item.id)}
+          />
+        ))}
       </div>
     </ScrollArea>
   )
