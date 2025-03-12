@@ -2,6 +2,7 @@
 
 import type React from "react"
 
+import { useState } from "react"
 import Link from "next/link"
 import {
   BarChart3,
@@ -13,6 +14,8 @@ import {
   HelpCircle,
   List,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   PieChart,
   Settings,
   Shield,
@@ -25,6 +28,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface NavItemProps {
   id: string
@@ -33,9 +37,31 @@ interface NavItemProps {
   href?: string
   isActive?: boolean
   onClick?: () => void
+  isCollapsed?: boolean
 }
 
-const NavItem = ({ id, title, icon, href, isActive = false, onClick }: NavItemProps) => {
+const NavItem = ({ id, title, icon, href, isActive = false, onClick, isCollapsed = false }: NavItemProps) => {
+  if (isCollapsed) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn("h-10 w-10", isActive && "bg-accent text-accent-foreground")}
+              onClick={onClick}
+            >
+              {icon}
+              <span className="sr-only">{title}</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">{title}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
   return (
     <Button
       variant="ghost"
@@ -179,9 +205,15 @@ export default function NavigationMenu({
   activeItem: string | null
   onItemClick: (itemId: string) => void
 }) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  const toggleCollapsed = () => {
+    setIsCollapsed((prev) => !prev)
+  }
+
   const renderNavContent = () => (
     <ScrollArea className="h-[calc(100vh-4rem)] pb-10">
-      <div className="space-y-2 px-2 py-4">
+      <div className={cn("py-4 flex flex-col items-center gap-1")}>
         {menuItems.map((item) => (
           <NavItem
             key={item.id}
@@ -190,6 +222,7 @@ export default function NavigationMenu({
             icon={item.icon}
             isActive={activeItem === item.id}
             onClick={() => onItemClick(item.id)}
+            isCollapsed={isCollapsed}
           />
         ))}
       </div>
@@ -198,7 +231,7 @@ export default function NavigationMenu({
 
   return (
     <>
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation remains the same... */}
       <div className="lg:hidden flex items-center h-16 px-4 border-b bg-background">
         <Sheet>
           <SheetTrigger asChild>
@@ -224,14 +257,38 @@ export default function NavigationMenu({
       </div>
 
       {/* Desktop Navigation */}
-      <div className="hidden lg:flex h-screen w-64 flex-col border-r bg-background">
-        <div className="h-16 flex items-center px-6 border-b">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-pastel-blue" />
-            <span className="font-semibold text-lg">Banking Portal</span>
-          </Link>
+      <div
+        className="hidden lg:flex h-screen flex-col border-r bg-background transition-all duration-300 ease-in-out"
+        style={{ width: isCollapsed ? "64px" : "256px" }}
+      >
+        <div className={cn("h-16 flex items-center border-b", isCollapsed ? "justify-center" : "px-6 justify-between")}>
+          {!isCollapsed && (
+            <Link href="/" className="flex items-center gap-2">
+              <Shield className="h-6 w-6 text-pastel-blue" />
+              <span className="font-semibold text-lg">Banking Portal</span>
+            </Link>
+          )}
+
+          {isCollapsed ? (
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={toggleCollapsed} className="h-10 w-10">
+                    <PanelLeftOpen className="h-4 w-4" />
+                    <span className="sr-only">Expand sidebar</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Expand sidebar</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={toggleCollapsed} className="h-10 w-10">
+              <PanelLeftClose className="h-4 w-4" />
+              <span className="sr-only">Collapse sidebar</span>
+            </Button>
+          )}
         </div>
-        {renderNavContent()}
+        <div className={cn("flex flex-col", isCollapsed && "items-center")}>{renderNavContent()}</div>
       </div>
     </>
   )
